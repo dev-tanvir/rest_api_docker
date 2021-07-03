@@ -21,9 +21,8 @@ class AdminSiteTests(TestCase):
 
     def test_users_listed(self):
         """Testing custom users listing"""
-        url = reverse("admin:core_users_changelist")
+        url = reverse("admin:core_user_changelist")
         response = self.client.get(url)
 
         self.assertContains(response, self.user.name)
         self.assertContains(response, self.user.email)
-
