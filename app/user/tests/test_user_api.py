@@ -7,6 +7,7 @@ from rest_framework.test import APIClient # it is a test client
 
 CREATE_USER_URL = reverse('user:create')
 
+#helper functions for API testing
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
 
