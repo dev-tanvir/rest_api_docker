@@ -71,7 +71,6 @@ class PublicUserAPITests(TestCase):
         payload = {
             'email': 'tanvir@g.com',
             'password': 'testpass',
-            'name': 'Tanvir Faisal',
         }
 
         create_user(**payload)
@@ -88,7 +87,6 @@ class PublicUserAPITests(TestCase):
         payload = {
             'email': 'tanvir@g.com',
             'password': 'oopsworng',
-            'name': 'Tanvir Faisal',
         }
         response = self.client.post(TOKEN_URL, payload)
 
@@ -100,7 +98,6 @@ class PublicUserAPITests(TestCase):
         payload = {
             'email': 'tanvir@g.com',
             'password': 'testpass',
-            'name': 'Tanvir Faisal',
         }
         response = self.client.post(TOKEN_URL, payload)
 
@@ -112,14 +109,8 @@ class PublicUserAPITests(TestCase):
         payload = {
             'email': 'tanvir@g.com',
             'password': '',
-            'name': 'Tanvir Faisal',
         }
         response = self.client.post(TOKEN_URL, payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn('token', response.data)
-        
-
-
-
-
