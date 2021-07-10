@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from core.models import Tag
 from synthesize import serializers
 
-class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+                 mixins.CreateModelMixin):
     """Manage Tags in the database"""
     serializer_class = serializers.TagSerializer
     authentication_classes = (TokenAuthentication,)
@@ -16,3 +17,7 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         """Extending it show only logged user owned tags"""
 
         return self.queryset.filter(user=self.request.user).order_by('-name')
+
+    def perform_create(self, serializer):
+        """Create a tag"""
+        serializer.save(user=self.request.user)     # This is to tag logged in user as tag user

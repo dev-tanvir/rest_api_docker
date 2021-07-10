@@ -73,5 +73,25 @@ class PrivateTagAPITests(TestCase):
         self.assertEqual(len(response.data), 1) # it should return only 1 data i.e. Earth - for authenticated user
         self.assertEqual(response.data[0]['name'], tag.name)
 
+    # ----------------- Test create tag ------------------
 
+    def test_create_tag_successful(self):
+        """Test to check creation of tag is successful"""
+        payload ={
+            'name' : 'neptune',
+        }
 
+        self.client.post(TAG_URL, payload)
+
+        tag_exists = Tag.objects.filter(user=self.user,name=payload['name']).exists()
+        self.assertTrue(tag_exists)
+
+    def test_create_tag_invalid(self):
+        """Test to check invalid tag is not created"""
+        payload ={
+            'name' : '',
+        }
+
+        response = self.client.post(TAG_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
