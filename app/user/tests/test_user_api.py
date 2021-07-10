@@ -1,3 +1,4 @@
+from django.http import response
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -7,6 +8,7 @@ from rest_framework.test import APIClient # it is a test client
 
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
+ME_URL = reverse('user:me')
 
 #helper functions for API testing
 def create_user(**params):
@@ -114,3 +116,62 @@ class PublicUserAPITests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn('token', response.data)
+
+# ----------------------- Tests for Retreive / Edit ----------------------------
+
+    def test_retrieve_for_user_unauthorized(self):
+        """Test to check authentication is required for edit / retrieve"""
+        response = self.client.get(ME_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateUserAPITests(TestCase):
+    """Testing API endpoints where authentication is required"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = create_user(
+            email='tanvir@gmail.com',
+            password="testpass",
+            name='Tanvir'
+        )
+
+        self.client.force_authenticate(user=self.user) # authenticate user for all tests
+
+    def test_retrieve_profile_success(self):
+        """Test that retrieving profile is successful for logged in users"""
+        response = self.client.get(ME_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            "name" : self.user.name,
+            "email": self.user.email
+        })
+
+    def test_retrieve_post_not_allowed(self):
+        """Test that post requests are not allowded in me url"""
+        response = self.client.post(ME_URL, {})
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user_profile(self):
+        """Test to check authenticated user can update his/her profile"""
+        payload = {
+            'name': 'tanvir_new',
+            'password': 'passwordnew',
+        }
+
+        response = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+
+        self.assertEqual(self.user.name, payload['name'])
+        self.assertEqual(self.user.check_password(payload['password']))
+        self.assertEqual(response.status_code, status.HTTP_200_ok)
+
+
+        
+
+
+        
