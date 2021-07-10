@@ -9,7 +9,7 @@ from core.models import Tag
 
 from synthesize.serializers import TagSerializer
 
-TAG_URL = reverse('synthesize:tag')
+TAG_URL = reverse('synthesize:tag-list') # viewSet
 
 
 class PublicTagAPITests(TestCase):
@@ -70,7 +70,7 @@ class PrivateTagAPITests(TestCase):
         response = self.client.get(TAG_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 1) # it should return only 1 data i.e. Earth - for authenticated user
         self.assertEqual(response.data[0]['name'], tag.name)
 
 
