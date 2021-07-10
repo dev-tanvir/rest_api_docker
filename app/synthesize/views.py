@@ -11,3 +11,8 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = Tag.objects.all()
+
+    def get_queryset(self):                                         # filter per user
+        """Extending it show only logged user owned tags"""
+
+        return self.queryset.filter(user=self.request.user).order_by('-name')
