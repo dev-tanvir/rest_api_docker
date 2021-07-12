@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register('tag', views.TagViewSet)
+router.register('chemcomp', views.ChemcompViewSet)
 
 app_name = 'synthesize'
 

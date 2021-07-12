@@ -52,3 +52,15 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(tag), tag.name)
+
+    # -------------- Test for ChemComps ---------------------
+
+    def test_for_chemcomp_str(self):
+        """Test to check chemcomp str representation"""
+
+        checmcomp = models.Chemcomp.objects.create(
+            user=sample_user(),
+            name="Amino Acid"
+        )
+
+        self.assertEqual(str(checmcomp), checmcomp.name)

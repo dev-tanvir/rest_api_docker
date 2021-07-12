@@ -54,3 +54,15 @@ class Tag(models.Model):
     def __str__(self) -> str:
         """String reprensation of tag object"""
         return self.name
+
+
+class Chemcomp(models.Model):
+    """Model for chemical components of synthesizer"""
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self) -> str:
+        return self.name
