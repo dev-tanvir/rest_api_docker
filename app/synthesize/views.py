@@ -23,7 +23,8 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
         serializer.save(user=self.request.user)     # This is to tag logged in user as tag user
 
 
-class ChemcompViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class ChemcompViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+                    mixins.CreateModelMixin):
     """Manage Chemcomps in the database"""
     serializer_class = serializers.ChemcompSerializer
     permission_classes = (IsAuthenticated,)
@@ -34,3 +35,7 @@ class ChemcompViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         """Extending it show only logged user owned chemcomps"""
 
         return self.queryset.filter(user=self.request.user).order_by('-name')
+
+    def perform_create(self, serializer):
+        """Create a chemcomp"""
+        serializer.save(user=self.request.user)

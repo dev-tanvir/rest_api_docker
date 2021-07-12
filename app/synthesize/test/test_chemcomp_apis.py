@@ -44,7 +44,7 @@ class ChemcompPrivateAPITests(TestCase):
 
         response = self.client.get(CHEMCOMP_URL)
 
-        chemcomps = Chemcomp.objects.all()
+        chemcomps = Chemcomp.objects.all().order_by('-name')
         serializer = ChemcompSerializer(chemcomps, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -59,13 +59,34 @@ class ChemcompPrivateAPITests(TestCase):
 
         auth_user_chemcomp = Chemcomp.objects.create(name="Amino Acid", user=self.user)
         Chemcomp.objects.create(name="Water", user=user2)
-
+        
         response = self.client.get(CHEMCOMP_URL)
-
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['name'], auth_user_chemcomp.name)
 
-     # ----------------- Test create Chemcomp -------------------
+    # ----------------- Test create Chemcomp -------------------
 
+    def test_create_chemcomp_successful(self):
+        """Test to check creation of chemcomp is successful"""
+        payload ={
+            'name' : 'Methane gas',
+        }
+
+        self.client.post(CHEMCOMP_URL, payload)
+
+        tag_exists = Chemcomp.objects.filter(user=self.user,name=payload['name']).exists()
+        self.assertTrue(tag_exists)
+
+    def test_create_chemcomp_invalid(self):
+        """Test to check invalid chemcomp is not created"""
+        payload ={
+            'name' : '',
+        }
+
+        response = self.client.post(CHEMCOMP_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
 
