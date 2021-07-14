@@ -68,14 +68,14 @@ class SynthesizePrivateAPITests(TestCase):
             'another@gmail.com',
             'testpassanother'
         )
-        sample_synthesize(user=another_user, titke="another user")
+        sample_synthesize(user=another_user, title="another user")
         synth = sample_synthesize(user=self.user, title="auth user")
 
         response = self.client.get(SYNTHE_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['name'], synth.name)
+        self.assertEqual(response.data[0]['title'], synth.title)
 
     
 

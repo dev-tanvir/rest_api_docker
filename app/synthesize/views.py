@@ -37,3 +37,7 @@ class SynthesizeViewSet(SynthesizeElementViewSet):
     """Manage Synthesizes in the database"""
     serializer_class = serializers.SynthesizeSerializer
     queryset = Synthesize.objects.all()
+    
+    def get_queryset(self):                                         
+        """Extending it show only logged user owned Synthesize elements"""
+        return self.queryset.filter(user=self.request.user).order_by('-id')
