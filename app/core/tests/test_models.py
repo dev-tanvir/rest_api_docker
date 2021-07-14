@@ -64,3 +64,18 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(checmcomp), checmcomp.name)
+
+    # -------------- Test for Synthesize ---------------------
+
+    def test_for_synthesize_str(self):
+        """Test to check synthesize str representation"""
+
+        synth = models.Synthesize.objects.create(
+            user=sample_user(),
+            title="Martian primary life",
+            time_years = 10000000,
+            chance=54.00
+
+        )
+
+        self.assertEqual(str(synth), synth.title)

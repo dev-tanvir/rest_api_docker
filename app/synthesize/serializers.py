@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Tag,Chemcomp
+from core.models import Tag, Chemcomp, Synthesize
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -17,4 +17,13 @@ class ChemcompSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chemcomp
         fields = ('id', 'name',)
+        read_only_fields = ('id',)
+
+
+class SynthesizeSerializer(serializers.ModelSerializer):
+    """Serializer for the Synthesize objects"""
+
+    class Meta:
+        model = Synthesize
+        fields = ('id','title','time_years','chance','link','tags','chemcomps',)
         read_only_fields = ('id',)

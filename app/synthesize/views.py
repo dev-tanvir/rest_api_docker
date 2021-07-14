@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Tag,Chemcomp
+from core.models import Tag, Chemcomp, Synthesize
 from synthesize import serializers
 
 
@@ -31,3 +31,9 @@ class ChemcompViewSet(SynthesizeElementViewSet):
     """Manage Chemcomps in the database"""
     serializer_class = serializers.ChemcompSerializer
     queryset = Chemcomp.objects.all()
+
+
+class SynthesizeViewSet(SynthesizeElementViewSet):
+    """Manage Synthesizes in the database"""
+    serializer_class = serializers.SynthesizeSerializer
+    queryset = Synthesize.objects.all()

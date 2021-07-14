@@ -66,3 +66,20 @@ class Chemcomp(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Synthesize(models.Model):
+    """Model for declaring a synthesize for life"""
+    title = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    time_years = models.IntegerField()
+    link = models.CharField(blank=True, max_length=255)
+    chemcomps = models.ManyToManyField('Chemcomp')
+    tags = models.ManyToManyField('Tag')
+    chance = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __str__(self) -> str:
+        return self.title
