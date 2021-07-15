@@ -5,11 +5,14 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Synthesize
+from core.models import Synthesize, Tag, Chemcomp
 
-from synthesize.serializers import SynthesizeSerializer
+from synthesize.serializers import SynthesizeSerializer, SynthesizeDetailSerializer
 
 SYNTHE_URL = reverse('synthesize:synthesize-list')
+
+def synthe_detail_url(synthe_id):
+    return reverse('synthesize:synthesize-detail', args=[synthe_id])
 
 def sample_synthesize(user, **params):
     """Create and return an sample synthesizer element"""
@@ -22,6 +25,12 @@ def sample_synthesize(user, **params):
     defaults.update(params)
 
     return Synthesize.objects.create(user=user, **defaults)
+
+def sample_tag(user, name="Sample Tag"):
+    return Tag.objects.create(name=name, user=user)
+
+def sample_chemcomp(user, name="Sample Chempcomp"):
+    return Chemcomp.objects.create(name=name, user=user)
 
 
 class SynthesizePublicAPITests(TestCase):
@@ -77,5 +86,16 @@ class SynthesizePrivateAPITests(TestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['title'], synth.title)
 
-    
+    # ------------- Test Synthesize detail --------------------------
+
+    def test_view_synthesize_detail(self):
+        """Test to check detail view of synthesize objects"""
+        synthe = sample_synthesize(user=self.user)
+        synthe.tags.add(sample_tag(user=self.user))
+        synthe.chemcomps.add(sample_chemcomp(self.user))
+
+        res = self.client.get(synthe_detail_url(synthe.id))
+        serializer = SynthesizeDetailSerializer(synthe)    
+
+        self.assertEqual(res.data, serializer.data)
 

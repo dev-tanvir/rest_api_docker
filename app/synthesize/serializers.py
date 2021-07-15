@@ -22,6 +22,15 @@ class ChemcompSerializer(serializers.ModelSerializer):
 
 class SynthesizeSerializer(serializers.ModelSerializer):
     """Serializer for the Synthesize objects"""
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset = Tag.objects.all()
+    )
+
+    chemcomps = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset = Chemcomp.objects.all()
+    )
 
     class Meta:
         model = Synthesize
