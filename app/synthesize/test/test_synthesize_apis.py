@@ -11,7 +11,7 @@ from synthesize.serializers import SynthesizeSerializer, SynthesizeDetailSeriali
 
 SYNTHE_URL = reverse('synthesize:synthesize-list')
 
-def synthe_detail_url(synthe_id):
+def detail_url(synthe_id):
     return reverse('synthesize:synthesize-detail', args=[synthe_id])
 
 def sample_synthesize(user, **params):
@@ -94,7 +94,7 @@ class SynthesizePrivateAPITests(TestCase):
         synthe.tags.add(sample_tag(user=self.user))
         synthe.chemcomps.add(sample_chemcomp(self.user))
 
-        res = self.client.get(synthe_detail_url(synthe.id))
+        res = self.client.get(detail_url(synthe.id))
         serializer = SynthesizeDetailSerializer(synthe)    
 
         self.assertEqual(res.data, serializer.data)

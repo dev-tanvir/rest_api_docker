@@ -33,11 +33,21 @@ class ChemcompViewSet(SynthesizeElementViewSet):
     queryset = Chemcomp.objects.all()
 
 
-class SynthesizeViewSet(SynthesizeElementViewSet):
+class SynthesizeViewSet(viewsets.ModelViewSet):
     """Manage Synthesizes in the database"""
     serializer_class = serializers.SynthesizeSerializer
     queryset = Synthesize.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
     
     def get_queryset(self):                                         
         """Extending it show only logged user owned Synthesize elements"""
         return self.queryset.filter(user=self.request.user).order_by('-id')
+
+    def get_serializer_class(self):
+        """Return the appropriate serializer class"""
+        # print(self.action)
+        if self.action == 'retrieve':
+            return serializers.SynthesizeDetailSerializer
+
+        return self.serializer_class

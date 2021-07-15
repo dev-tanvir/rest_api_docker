@@ -36,3 +36,10 @@ class SynthesizeSerializer(serializers.ModelSerializer):
         model = Synthesize
         fields = ('id','title','time_years','chance','link','tags','chemcomps',)
         read_only_fields = ('id',)
+
+
+class SynthesizeDetailSerializer(SynthesizeSerializer):
+    """Serializer for the synthesize detail"""
+
+    tags = TagSerializer(many=True, read_only=True)
+    chemcomps = ChemcompSerializer(many=True, read_only=True)
