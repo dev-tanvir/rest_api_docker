@@ -51,3 +51,7 @@ class SynthesizeViewSet(viewsets.ModelViewSet):
             return serializers.SynthesizeDetailSerializer
 
         return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a Synthesize elements"""
+        serializer.save(user=self.request.user)

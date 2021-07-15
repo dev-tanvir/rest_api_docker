@@ -99,3 +99,89 @@ class SynthesizePrivateAPITests(TestCase):
 
         self.assertEqual(res.data, serializer.data)
 
+    # ------------- Test Synthesize Create ---------------------------
+
+    def test_create_basic_synthesize(self):
+        payload = {
+            'title' : 'Sample title',
+            'time_years' : 500000,
+            'chance' : 69,
+        }
+
+        res = self.client.post(SYNTHE_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        synthe = Synthesize.objects.get(id=res.data['id'])
+
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(synthe, key))
+
+    def test_create_synthesize_with_tags(self):
+        tag_1 = sample_tag(user=self.user, name="Tag 1")
+        tag_2 = sample_tag(user=self.user, name="Tag 2")
+
+        payload = {
+            'title' : 'Sample title',
+            'time_years' : 500000,
+            'chance' : 69,
+            'tags' : [tag_1.id, tag_2.id],
+        }
+
+        res = self.client.post(SYNTHE_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        synthe = Synthesize.objects.get(id=res.data['id'])
+        tags = synthe.tags.all()
+        self.assertEqual(tags.count(), 2)
+        self.assertIn(tag_1, tags)
+        self.assertIn(tag_2, tags)
+
+    def test_create_synthesize_with_chemcomps(self):
+        cc_1 = sample_chemcomp(user=self.user, name="CC 1")
+        cc_2 = sample_chemcomp(user=self.user, name="CC 2")
+
+        payload = {
+            'title' : 'Sample title',
+            'time_years' : 500000,
+            'chance' : 69,
+            'chemcomps' : [cc_1.id, cc_2.id],
+        }
+
+        res = self.client.post(SYNTHE_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        synthe = Synthesize.objects.get(id=res.data['id'])
+        ccs = synthe.chemcomps.all()
+        self.assertEqual(len(ccs), 2)
+        self.assertIn(cc_1, ccs)
+        self.assertIn(cc_2, ccs)
+
+    # -------------- Test update Synthesize ----------------------
+
+    def test_partial_update_synthesize(self):
+        """Test to partally update synthesize object using patch"""
+        synthe = sample_synthesize(user=self.user)
+        synthe.tags.add(sample_tag(user=self.user))
+        new_tag = sample_tag(user=self.user, name="New Tag")
+
+        payload = {
+            'title' : 'Updated Title',
+            'tags' : [new_tag.id],
+        }
+
+        url = detail_url(synthe.id)
+        res = self.client.patch(url, payload)
+
+        synthe.refresh_from_db()
+
+        self.assertEqual(synthe.title, res.data['title'])
+        tags = synthe.tags.all()
+        self.assertEqual(len(tags), 1)
+        self.assertIn(new_tag, tags)
+
+
+
+
+
+
+
