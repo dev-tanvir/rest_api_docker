@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from decimal import Decimal
+
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -170,18 +172,38 @@ class SynthesizePrivateAPITests(TestCase):
         }
 
         url = detail_url(synthe.id)
-        res = self.client.patch(url, payload)
+        self.client.patch(url, payload)
 
         synthe.refresh_from_db()
 
-        self.assertEqual(synthe.title, res.data['title'])
+        # after updating
+        self.assertEqual(synthe.title, payload['title'])
         tags = synthe.tags.all()
         self.assertEqual(len(tags), 1)
         self.assertIn(new_tag, tags)
 
+    def test_full_update_synthesize(self):
+        """Test to fully update synthesize object using put"""
+        synthe = sample_synthesize(user=self.user)
+        synthe.tags.add(sample_tag(user=self.user))
 
+        payload = {
+            'title' : 'Updated Title',
+            'chance' : Decimal('60.05'),    # to pass assertEqual, use 60.00 or Decimal('60.05') as 60.05 is float and not exact i.e. 60.050000000001
+            'time_years' : 7896590
+        }
 
+        url = detail_url(synthe.id)
+        self.client.put(url, payload)
 
+        synthe.refresh_from_db()
 
+        # after updating
+        self.assertEqual(synthe.title, payload['title'])
+        # print(type(synthe.chance))
+        # print(type(payload['chance']))
+        self.assertEqual(synthe.chance, payload['chance'])
+        self.assertEqual(synthe.time_years, payload['time_years'])
 
-
+        tags = synthe.tags.all()
+        self.assertEqual(len(tags), 0)
