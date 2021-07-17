@@ -43,3 +43,11 @@ class SynthesizeDetailSerializer(SynthesizeSerializer):
 
     tags = TagSerializer(many=True, read_only=True)
     chemcomps = ChemcompSerializer(many=True, read_only=True)
+
+
+class SynthesizeImageUploadSerializer(serializers.ModelSerializer):
+    """Serializer for the synthesize image upload"""
+    class Meta:
+        model = Synthesize
+        fields = ('id', 'image',)
+        read_only_fields = ('id',)

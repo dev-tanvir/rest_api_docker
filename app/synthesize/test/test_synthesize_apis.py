@@ -235,15 +235,16 @@ class SynthesizeImageUploadAPITests(TestCase):
         """Test to check valid image file upload is successful"""
         url = image_upload_url(self.synthe.id)
         with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf: # we are opening named file cause we need filename to uuid
-            img_data = Image('RGB', (10, 10))   #   creating an image data
+            img_data = Image.new('RGB', (10, 10))   #   creating an image data
             img_data.save(ntf, format="JPEG")   #   writing that image data to the file
             ntf.seek(0)                         #   after writing, we point to the start of the file again
             res = self.client.post(url, {'image':ntf}, format='multipart')
                                                 #   format='multipart' is to tell that this post request not only has json but also data
 
+        self.synthe.refresh_from_db()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('image', res.data)
-        self.assertTrue(os.path.exists(self.synthe.image.path))
+        self.assertTrue(os.path.exists(self.synthe.image.path)) #   it will not get path from image if db is not refreshed
 
     def test_upload_invalid_image_to_synthesize(self):
         """Test to check invalid image file upload is unsuccessful"""
