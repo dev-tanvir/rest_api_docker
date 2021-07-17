@@ -1,8 +1,18 @@
+import uuid
+import os
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
                                         PermissionsMixin
 
 from django.conf import settings    # recommended way to import settings in django
+
+def synthesize_image_file_path(instance, main_filename):
+    """return a valid path for uploaded file with unique name"""
+    main_file_extension = main_filename.split('.')[-1]
+    new_filename = f'{uuid.uuid4()}.{main_file_extension}'
+
+    return os.path.join('uploads/synthesize/', new_filename)
 
 
 class UserManager(BaseUserManager):
@@ -80,6 +90,7 @@ class Synthesize(models.Model):
     chemcomps = models.ManyToManyField('Chemcomp')
     tags = models.ManyToManyField('Tag')
     chance = models.DecimalField(max_digits=5, decimal_places=2)
+    image = models.ImageField(null=True, upload_to=synthesize_image_file_path)
 
     def __str__(self) -> str:
         return self.title
