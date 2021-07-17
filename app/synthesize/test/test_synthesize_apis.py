@@ -1,3 +1,8 @@
+import os
+import tempfile
+
+from PIL import Image
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -12,6 +17,9 @@ from core.models import Synthesize, Tag, Chemcomp
 from synthesize.serializers import SynthesizeSerializer, SynthesizeDetailSerializer
 
 SYNTHE_URL = reverse('synthesize:synthesize-list')
+
+def image_upload_url(synthe_id):
+    return reverse('synthesize:synthesize-upload-image', args=[synthe_id])
 
 def detail_url(synthe_id):
     return reverse('synthesize:synthesize-detail', args=[synthe_id])
@@ -207,3 +215,20 @@ class SynthesizePrivateAPITests(TestCase):
 
         tags = synthe.tags.all()
         self.assertEqual(len(tags), 0)
+
+
+class SynthesizeImageUploadAPITests(TestCase):
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            'test@g.com',
+            'testpass'
+        )
+        self.client.force_authenticate(user=self.user)
+        self.synthe = sample_synthesize(user=self.user)
+
+    def tearDown(self) -> None:
+        self.synthe.image.delete()  #   to keep the file systems clean from unnecessary test temp files
+
+        
