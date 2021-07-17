@@ -61,23 +61,23 @@ class SynthesizeViewSet(viewsets.ModelViewSet):
         """Create a Synthesize elements"""
         serializer.save(user=self.request.user)
 
-    @action(methods=['POST'], detail=True, url_path='upload-image')
-    def upload_image(self, request, pk=None):
+    @action(methods=['POST'], detail=True, url_path='upload-image') # custom-url and its corresponding action
+    def upload_image(self, request, pk=None):       # pk is the id of the synthesize obj. i.e. /synthesize/3/upload-image
         """Upload an image to a synthesize record"""
-        synthe = self.get_object()
-        serializer = self.get_serializer(
+        synthe = self.get_object()  # using the pk, we get the object
+        serializer = self.get_serializer(       # we could have set the serializer directly but get_serializer_class is recommended
             synthe,
             data=request.data,
         )
 
         if serializer.is_valid():
-            serializer.save()
+            serializer.save()       # as serializer is ModelSerializer, we can save
             return Response(
                 serializer.data,
                 status=status.HTTP_200_OK
             )
 
         return Response(
-                serializer.data,
+                serializer.errors,  # i.e. Upload a valid image. The file you uploaded was either not an image or a corrupted image.
                 status=status.HTTP_400_BAD_REQUEST
             )
