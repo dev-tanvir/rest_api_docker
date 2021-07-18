@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Chemcomp
+from core.models import Chemcomp, Synthesize
 from synthesize.serializers import ChemcompSerializer
 
 CHEMCOMP_URL = reverse("synthesize:chemcomp-list")
@@ -88,5 +88,51 @@ class ChemcompPrivateAPITests(TestCase):
         response = self.client.post(CHEMCOMP_URL, payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
 
+    # ------------- Test retrieving chemcomps which are assigned to at least 1 synthesize objects ----------
+
+    def test_retrieve_chemcomps_assigned_to_synthesizes(self):
+        """Test filtering chemcomps by those assigned to synthesizes"""
+
+        cc1 = Chemcomp.objects.create(user=self.user, name='cc1')
+        cc2 = Chemcomp.objects.create(user=self.user, name='cc2')
+
+        synthe = Synthesize.objects.create(
+            title='Synthe',
+            time_years=10000000,
+            chance=58.90,
+            user=self.user,
+        )
+        synthe.chemcomps.add(cc1)
+
+        res = self.client.get(CHEMCOMP_URL, {'assigned_only': 1})
+        serializer1 = ChemcompSerializer(cc1)
+        serializer2 = ChemcompSerializer(cc2)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertNotIn(serializer2.data, res.data)
+
+    def test_retrieve_chemcomps_assigned_unique(self):
+        """Test filtering chemcomps by assigned returns unique items"""
+
+        cc = Chemcomp.objects.create(user=self.user, name='sample cc')
+        Chemcomp.objects.create(user=self.user, name='another cc')
+
+        synthe1 = Synthesize.objects.create(
+            title='synthe1',
+            time_years=559809,
+            chance=48.00,
+            user=self.user
+        )
+        synthe1.chemcomps.add(cc)
+
+        synthe2 = Synthesize.objects.create(
+            title='synthe2',
+            time_years=300000,
+            chance=36.00,
+            user=self.user
+        )
+        synthe2.chemcomps.add(cc)
+
+        res = self.client.get(CHEMCOMP_URL, {'assigned_only': 1})
+        self.assertEqual(len(res.data), 1)

@@ -96,9 +96,9 @@ class PrivateTagAPITests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # ------------- Test tags which are assigned to at least 1 synthesize objects ----------
+    # ------------- Test retrieving tags which are assigned to at least 1 synthesize objects ----------
 
-    def test_retrieve_tags_assigned_to_recipes(self):
+    def test_retrieve_tags_assigned_to_synthesizes(self):
         """Test filtering tags by those assigned to synthesizes"""
 
         tag1 = Tag.objects.create(user=self.user, name='tag1')
