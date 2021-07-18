@@ -42,9 +42,26 @@ class SynthesizeViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     
+
+    def _params_to_ints(self, qs):
+        """Convert a list of string IDs to list of integers"""
+        return [int(str_id) for str_id in qs.split(',')]
+
     def get_queryset(self):                                         
         """Extending it show only logged user owned Synthesize elements"""
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+        tags = self.request.query_params.get('tags')
+        ccs = self.request.query_params.get('chemcomps')
+        queryset = self.queryset
+
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+
+        if ccs:
+            cc_ids = self._params_to_ints(ccs)
+            queryset = queryset.filter(chemcomps__id__in=cc_ids)
+
+        return queryset.filter(user=self.request.user).order_by('-id')
 
     def get_serializer_class(self):
         """Return the appropriate serializer class"""
