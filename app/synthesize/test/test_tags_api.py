@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Tag
+from core.models import Tag, Synthesize
 
 from synthesize.serializers import TagSerializer
 
@@ -95,3 +95,51 @@ class PrivateTagAPITests(TestCase):
         response = self.client.post(TAG_URL, payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # ------------- Test tags which are assigned to at least 1 synthesize objects ----------
+
+    def test_retrieve_tags_assigned_to_recipes(self):
+        """Test filtering tags by those assigned to synthesizes"""
+
+        tag1 = Tag.objects.create(user=self.user, name='tag1')
+        tag2 = Tag.objects.create(user=self.user, name='tag2')
+
+        synthe = Synthesize.objects.create(
+            title='Synthe',
+            time_years=10000000,
+            chance=58.90,
+            user=self.user,
+        )
+        synthe.tags.add(tag1)
+
+        res = self.client.get(TAG_URL, {'assigned_only': 1})
+        serializer1 = TagSerializer(tag1)
+        serializer2 = TagSerializer(tag2)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertNotIn(serializer2.data, res.data)
+
+    def test_retrieve_tags_assigned_unique(self):
+        """Test filtering tags by assigned returns unique items"""
+
+        tag = Tag.objects.create(user=self.user, name='sample tag')
+        Tag.objects.create(user=self.user, name='another tag')
+
+        synthe1 = Synthesize.objects.create(
+            title='synthe1',
+            time_years=559809,
+            chance=48.00,
+            user=self.user
+        )
+        synthe1.tags.add(tag)
+
+        synthe2 = Synthesize.objects.create(
+            title='synthe2',
+            time_years=300000,
+            chance=36.00,
+            user=self.user
+        )
+        synthe2.tags.add(tag)
+
+        res = self.client.get(TAG_URL, {'assigned_only': 1})
+        self.assertEqual(len(res.data), 1)
