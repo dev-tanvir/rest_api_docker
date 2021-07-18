@@ -68,7 +68,7 @@ class SynthesizeViewSet(viewsets.ModelViewSet):
             cc_ids = self._params_to_ints(ccs)
             queryset = queryset.filter(chemcomps__id__in=cc_ids)
 
-        return queryset.filter(user=self.request.user).order_by('-id')
+        return queryset.filter(user=self.request.user).order_by('-id').distinct()
 
     def get_serializer_class(self):
         """Return the appropriate serializer class"""
