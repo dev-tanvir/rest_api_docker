@@ -252,3 +252,51 @@ class SynthesizeImageUploadAPITests(TestCase):
         res = self.client.post(url, {'image': 'invalid image'}, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # --------- Test Filtering with tags and chemcomps ---------------
+
+    def test_filter_synthesizes_by_tags(self):
+        """Test returning synthesizes with specific tags"""
+
+        synthe1 = sample_synthesize(user=self.user, title='sample synthe1')
+        synthe2 = sample_synthesize(user=self.user, title='sample synthe2')
+        tag1 = sample_tag(user=self.user, name='sam tag1')
+        tag2 = sample_tag(user=self.user, name='sam tag2')
+        synthe1.tags.add(tag1)
+        synthe2.tags.add(tag2)
+        synthe3 = sample_synthesize(user=self.user, title='sample synthe3')
+
+        res = self.client.get(
+            SYNTHE_URL,
+            {'tags': f'{tag1.id},{tag2.id}'}
+        )
+
+        serializer1 = SynthesizeSerializer(synthe1)
+        serializer2 = SynthesizeSerializer(synthe2)
+        serializer3 = SynthesizeSerializer(synthe3)
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_filter_synthesizes_by_chemcomps(self):
+        """Test returning synthesizes with specific chemcomps"""
+
+        synthe1 = sample_synthesize(user=self.user, title='sample synthe1')
+        synthe2 = sample_synthesize(user=self.user, title='sample synthe2')
+        cc1 = sample_chemcomp(user=self.user, name='sam cc1')
+        cc2 = sample_chemcomp(user=self.user, name='sam cc2')
+        synthe1.chemcomps.add(cc1)
+        synthe2.chemcomps.add(cc2)
+        synthe3 = sample_synthesize(user=self.user, title='sample synthe3')
+
+        res = self.client.get(
+            SYNTHE_URL,
+            {'chemcomps': f'{cc1.id},{cc2.id}'}
+        )
+
+        serializer1 = SynthesizeSerializer(synthe1)
+        serializer2 = SynthesizeSerializer(synthe2)
+        serializer3 = SynthesizeSerializer(synthe3)
+        self.assertIn(serializer1.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
